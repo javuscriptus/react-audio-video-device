@@ -1,29 +1,48 @@
-import { useEffect, useRef, useState } from 'react';
+import { Ref, RefObject, useEffect, useRef, useState } from 'react';
+
+import { useSettingsStore } from '@/store/store';
 
 const useDevices = () => {
-  const audioSourceRef = useRef<HTMLSelectElement>();
+  const settingsStore = useSettingsStore((state) => state);
+
+  const { audioinput, audiooutput, videoinput, handleVolume } = settingsStore;
+  console.log('🚀 ➡️ file: useDevices.tsx:9 ➡️ useDevices ➡️ audioinput', {
+    audioinput,
+    audiooutput,
+    videoinput,
+  });
+
+  const localAudioRef = useRef<RefObject<HTMLAudioElement>>();
+  const remoteAudioRef = useRef<RefObject<HTMLAudioElement>>();
+  const videoElemRef = useRef<RefObject<HTMLAudioElement>>();
+
+  const audioInputRef = useRef<HTMLSelectElement>();
   const audioOutputRef = useRef<HTMLSelectElement>();
-  const videoSourceRef = useRef<HTMLSelectElement>();
-  const videoElemRef = useRef<any>();
+  const videoInputRef = useRef<HTMLSelectElement>();
 
-  const audioSource = audioSourceRef.current as any;
-  const videoElement = videoElemRef.current as any;
+  const audioInputRangeRef = useRef<any>();
+  const audioOutputRangeRef = useRef<any>();
+  const videoInputRangeRef = useRef<any>();
 
-  const audioOutput = audioOutputRef.current as any;
-  const videoSource = videoSourceRef.current as any;
+  const audioInputCurrentSelect = audioInputRef.current as any;
+  const audioOutputCurrentSelect = audioOutputRef.current as any;
+  const videoInputCurrentSelect = videoInputRef.current as any;
 
   const [isRerender, setIsRerender] = useState(false);
   const [options, setOptions] = useState<any>([]);
-  console.log('🚀 ➡️ file: useDevices.tsx ➡️ line 17 ➡️ useDevices ➡️ options', options);
 
-  const selectors = [audioSource, audioOutput, videoSource];
-  console.log(
-    '🚀 ➡️ file: useDevices.tsx ➡️ line 19 ➡️ useDevices ➡️ selectors',
+  const selectors = [
+    audioInputCurrentSelect,
+    audioOutputCurrentSelect,
+    videoInputCurrentSelect,
+  ];
+  console.log('🚀 ➡️ file: useDevices.tsx:32 ➡️ useDevices ➡️ selectors', [
     selectors,
-  );
+    audioInputCurrentSelect?.volume,
+  ]);
+  const rangeElements = [audioInputRangeRef, audioOutputRangeRef, videoInputRangeRef];
 
   function getDevices(deviceInfos: any) {
-    console.log(options);
     if (options.length) {
       return;
     }
@@ -67,11 +86,10 @@ const useDevices = () => {
   }
 
   function gotStream(stream: any) {
-    console.log('🚀 ➡️ file: useDevices.tsx ➡️ line 70 ➡️ gotStream ➡️ stream', stream);
-    window.stream = stream; // make stream available to console
+    window.stream = stream;
+
     console.log('🚀 ➡️ file: useDevices.tsx ➡️ line 79 ➡️ gotStream ➡️ stream', stream);
     videoElemRef.current.srcObject = stream;
-    // Refresh button list in case labels have become available
     return navigator.mediaDevices.enumerateDevices();
   }
 
@@ -81,13 +99,14 @@ const useDevices = () => {
         track.stop();
       });
     }
+
     console.log(window.stream);
     let audioS;
     let videoS;
 
     setTimeout(() => {
-      audioS = audioSource?.value;
-      videoS = videoSource?.value;
+      audioS = audioInputCurrentSelect?.value;
+      videoS = videoInputCurrentSelect?.value;
 
       const constraints = {
         audio: { deviceId: audioS ? { exact: audioS } : undefined },
@@ -99,7 +118,7 @@ const useDevices = () => {
         .then(gotStream)
         .then(getDevices)
         .catch((err) => console.log('Ошибка', err));
-    }, 1000);
+    }, 3000);
   }
 
   function attachSinkId(element: any, sinkId: any) {
@@ -115,8 +134,8 @@ const useDevices = () => {
             errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`;
           }
           console.error(errorMessage);
-          // Jump back to first output device in the list as it's the default.
-          audioOutput.selectedIndex = 0;
+
+          audioOutputCurrentSelect.selectedIndex = 0;
         });
     } else {
       console.warn('Browser does not support output device selection.');
@@ -124,8 +143,9 @@ const useDevices = () => {
   }
 
   function changeAudioDestination() {
-    const audioDestination = audioOutput.value;
-    attachSinkId(videoElement, audioDestination);
+    const audioDestination = audioOutputCurrentSelect.value;
+
+    attachSinkId(videoInputCurrentSelect, audioDestination);
   }
 
   useEffect(() => {
@@ -133,17 +153,24 @@ const useDevices = () => {
       .enumerateDevices()
       .then(getDevices)
       .catch((err) => console.log(err));
-  }, [audioSourceRef.current, audioOutputRef.current, videoSourceRef.current]);
+  }, [videoInputRef, audioOutputRef, videoInputRef]);
 
   return {
     options: options.reduce((r: any, a: any) => {
+      console.log(r);
       r[a.kind] = r[a.kind] || [];
       r[a.kind].push(a);
       return r;
     }, []),
-    audioSourceRef,
+    videoInputRef,
     audioOutputRef,
-    videoSourceRef,
+    audioInputRef,
+    audioInputRangeRef,
+    audioOutputRangeRef,
+    videoInputRangeRef,
+    localAudioRef,
+    remoteAudioRef,
+    videoElemRef,
     start,
     changeAudioDestination,
   };

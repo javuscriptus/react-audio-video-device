@@ -13,7 +13,7 @@ export interface SelectProps {
 export const Select = React.forwardRef((props: SelectProps, ref) => {
   const { name, label, onChange, children } = props;
   return (
-    <div className="select">
+    <div className={styles.select}>
       <label htmlFor={name}>{label}</label>
       <select ref={ref as any} id={name} {...onChange}>
         {children}
