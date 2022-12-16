@@ -119,13 +119,13 @@ const App = () => {
               <div className={styles['input-value']}>
                 {kind === 'audioinput' && (
                   <>
-                    <span>Моя громкость: {audioinput}</span>
+                    <span>Громкость: {audioinput}%</span>
                     <audio ref={localAudioRef} autoPlay muted={true} />
                   </>
                 )}
                 {kind === 'audiooutput' && (
                   <>
-                    <span>Громкость микрофона: {audiooutput}</span>
+                    <span>Громкость микрофона: {audiooutput}%</span>
                     <audio ref={remoteAudioRef} autoPlay muted={true} />
                   </>
                 )}
@@ -134,15 +134,17 @@ const App = () => {
                     <track kind="captions" />
                   </video>
                 )}
-                <input
-                  type="range"
-                  name={`${kind}_${label}`}
-                  ref={refRange}
-                  value={Number(rangeValue[kind])}
-                  min={1}
-                  max={100}
-                  onChange={(e) => handleRangeInput(e, kind)}
-                />
+                {kind !== 'videoinput' && (
+                  <input
+                    type="range"
+                    name={`${kind}_${label}`}
+                    ref={refRange}
+                    value={Number(rangeValue[kind])}
+                    min={1}
+                    max={100}
+                    onChange={(e) => handleRangeInput(e, kind)}
+                  />
+                )}
               </div>
             </div>
           );

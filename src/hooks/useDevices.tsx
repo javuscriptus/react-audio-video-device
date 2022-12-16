@@ -2,7 +2,14 @@ import { Ref, RefObject, useEffect, useRef, useState } from 'react';
 
 import { useSettingsStore } from '@/store/store';
 
+// Renamed the variable after your comment.
+var peerConnection = new RTCPeerConnection({
+  iceServers: [],
+});
+
 const useDevices = () => {
+  let localStream = null;
+
   const settingsStore = useSettingsStore((state) => state);
 
   const { audioinput, audiooutput, videoinput, handleVolume } = settingsStore;
@@ -86,10 +93,90 @@ const useDevices = () => {
   }
 
   function gotStream(stream: any) {
-    window.stream = stream;
+    // Получаем видеодорожку из потока (stream)
+    const videoTracks = stream.getVideoTracks();
+    console.log('🚀 ➡️ file: useDevices.tsx:98 ➡️ gotStream ➡️ videoTracks', videoTracks);
 
-    console.log('🚀 ➡️ file: useDevices.tsx ➡️ line 79 ➡️ gotStream ➡️ stream', stream);
-    videoElemRef.current.srcObject = stream;
+    /**
+     * Create a new audio context and build a stream source,
+     * stream destination and a gain node. Pass the stream into
+     * the mediaStreamSource so we can use it in the Web Audio API.
+     * ==================
+     * Создаем новый аудиоконтекст и создаем source поток,
+     * конечное место потока и GAIN узел. Передаем поток в
+     * source MediaStreamSource, чтобы мы могли использовать в Web Audio API.
+     */
+    const context = new AudioContext();
+    console.log('🚀 ➡️ file: useDevices.tsx:110 ➡️ gotStream ➡️ context', context);
+    const mediaStreamSource = context.createMediaStreamSource(stream);
+    console.log(
+      '🚀 ➡️ file: useDevices.tsx:112 ➡️ gotStream ➡️ mediaStreamSource',
+      mediaStreamSource,
+    );
+    const mediaStreamDestination = context.createMediaStreamDestination();
+    console.log(
+      '🚀 ➡️ file: useDevices.tsx:114 ➡️ gotStream ➡️ mediaStreamDestination',
+      mediaStreamDestination,
+    );
+    const gainNode = context.createGain();
+    console.log('🚀 ➡️ file: useDevices.tsx:116 ➡️ gotStream ➡️ gainNode', gainNode);
+
+    /**
+     * Connect the stream to the gainNode so that all audio
+     * passes through the gain and can be controlled by it.
+     * Then pass the stream from the gain to the mediaStreamDestination
+     * which can pass it back to the RTC client.
+     * ===================
+     * Подключите поток к GAIN узлу, чтобы все аудио
+     * проходит через GAIN и он смог управлять звуком.
+     * Затем передаем поток из GAIN в mediaStreamDestination
+     * который в свою очередь осуществит возвращение клиенту RTC.
+     */
+    mediaStreamSource.connect(gainNode);
+    gainNode.connect(mediaStreamDestination);
+
+    /**
+     * Change the gain levels on the input selector.
+     * ===================
+     * Изменяем уровни звука обращаясь к этой функции.
+     */
+    const changeValue = (event) => {
+      gainNode.gain.value = event.target.value;
+    };
+
+    /**
+     * The mediaStreamDestination.stream outputs a MediaStream object
+     * containing a single AudioMediaStreamTrack. Add the video track
+     * to the new stream to rejoin the video with the controlled audio.
+     * ==================
+     * mediaStreamDestination.stream выводит объект MediaStream
+     * содержащий одну дорожку аудиомедиапотока. Добавляем видеодорожку
+     * к новому потоку, чтобы объединить контролируемый звук с видео.
+     */
+    const controlledStream = mediaStreamDestination.stream;
+
+    for (const videoTrack of videoTracks) {
+      controlledStream.addTrack(videoTrack);
+    }
+
+    /**
+     * Use the stream that went through the gainNode. This
+     * is the same stream but with altered input volume levels.
+     * ==================
+     * Используем поток, прошедший через GainNode.
+     * Это, по сути, тот же поток, но с измененным уровнем громкости входного сигнала.
+     */
+
+    videoElemRef.current.srcObject = controlledStream;
+    localStream = controlledStream;
+    peerConnection.addStream(controlledStream);
+
+    // window.stream = stream;
+
+    // videoElemRef.current.srcObject = stream;
+
+    console.log('.........', navigator.mediaDevices.enumerateDevices());
+
     return navigator.mediaDevices.enumerateDevices();
   }
 
@@ -147,6 +234,8 @@ const useDevices = () => {
 
     attachSinkId(videoInputCurrentSelect, audioDestination);
   }
+
+  const handleVolumeElement = () => {};
 
   useEffect(() => {
     navigator.mediaDevices
