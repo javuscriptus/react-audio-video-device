@@ -70,7 +70,9 @@ export function MicrophoneAudio({ prop = 'default value' }: MicrophoneAudioProps
 
     navigator.mediaDevices.getUserMedia({ audio: true }).then((mediaStream) => {
       const inputSource = audioCtx.createMediaStreamSource(mediaStream);
+
       inputSource.connect(inputAnalyser);
+
       const inputDestination = audioCtx.createMediaStreamDestination();
       inputAnalyser.connect(inputDestination);
       drawInput();
