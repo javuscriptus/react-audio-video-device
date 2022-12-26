@@ -22,10 +22,6 @@ const App = () => {
     videoinput,
   };
 
-  console.log('🚀 ➡️ file: App.tsx:23 ➡️ App ➡️ videoinput', videoinput);
-  console.log('🚀 ➡️ file: App.tsx:23 ➡️ App ➡️ audiooutput', audiooutput);
-  console.log('🚀 ➡️ file: App.tsx:23 ➡️ App ➡️ audioinput', audioinput);
-
   const {
     options,
     videoInputRef,
@@ -82,10 +78,7 @@ const App = () => {
           if (kind === 'audiooutput' && remoteAudioRef.current) {
             remoteAudioRef.current.volume = volume / 100;
           }
-          console.log({
-            r: remoteAudioRef?.current?.volume,
-            l: localAudioRef?.current?.volume,
-          });
+
           return (
             <div key={`${label}_${kind}_${volume}`} className={styles.block}>
               <Select ref={ref} name={kind} label={label} onChange={start}>

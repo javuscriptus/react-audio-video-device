@@ -1,2 +1,4 @@
 export { Select } from './Select';
-export { SoundVolumeSettings } from './SoundVolumeSettings';
+export { AudioInputSelector } from './AudioInputSelector';
+export { AudioControls } from './AudioControls';
+export { MicrophoneAudio } from './MicrophoneAudio';
