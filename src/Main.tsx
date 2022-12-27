@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { AudioControls, MicrophoneAudio } from './components';
+import { AudioControls } from './components';
 import { KindType } from './components/AudioControls';
 import styles from './App.module.scss';
-import { group } from 'radash';
 import { Controller, useForm } from 'react-hook-form';
 
 // extends MediaDeviceInfo
@@ -23,8 +22,6 @@ interface DevicesStateTypes {
 }
 
 const Main = () => {
-  console.log('yo');
-
   const {
     register,
     handleSubmit,
@@ -37,8 +34,6 @@ const Main = () => {
     audiooutput: { labelBlock: 'Аудиовыход', value: '', devices: [], kind: '' },
     videoinput: { labelBlock: 'Видеовход', value: '', devices: [], kind: '' },
   });
-  console.log('🚀 ➡️ file: Main.tsx:40 ➡️ Main ➡️ devices', devices);
-
   const onCancel = (e: any) => {
     console.log(e);
     return;
@@ -48,36 +43,8 @@ const Main = () => {
 
   const onSelect = (selectedDevice: string, typeDevice: KindType) => {
     setDevices((prev: any) => {
-      console.log('!!!!!!!!!!!!!!!', {
-        ...prev,
-        [typeDevice]: { ...prev[typeDevice], selectedDevice },
-      });
       return { ...prev, [typeDevice]: { ...prev[typeDevice], selectedDevice } };
     });
-
-    {
-      // let isAudioInputSpeaker;
-      // let isAudioOutputMicrophone;
-      // let isVideoInputSpeaker;
-      // switch (kind) {
-      //   case 'audioinput':
-      //     isAudioInputSpeaker = true;
-      //     break;
-      //   case 'audiooutput':
-      //     isAudioOutputMicrophone = true;
-      //     break;
-      //   case 'videoinput':
-      //     isVideoInputSpeaker = true;
-      //     break;
-      //   // default:
-      //   //   darkOrLight = 'Unknown';
-      // }
-      // const isAudioInput = kind === 'audioinput' ? 'speaker' : null;
-      // const isAudioOutput = kind === 'audiooutput' ? 'microphone' : null;
-      // const isVideoInput = kind === 'videoinput' ? 'speaker' : null;
-      // const selectedElementType = isAudioInput || isAudioOutput || isVideoInput;
-      // selectDevice(selectedElementType, session, deviceId);}
-    }
   };
 
   const generateSelectOptions = (kind: KindType = 'audioinput') => {
@@ -137,10 +104,8 @@ const Main = () => {
   if (!devices.audioinput.value && !devices.audioinput.value) {
     return <></>;
   }
-  console.log({ a: devices?.audiooutput?.labelBlock });
   return (
     <form className={styles.form} onSubmit={handleSubmit(onSubmitForm)}>
-      <MicrophoneAudio />
       <Controller
         control={control}
         name="audioinput"

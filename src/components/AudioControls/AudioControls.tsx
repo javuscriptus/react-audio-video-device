@@ -1,10 +1,12 @@
-import { forwardRef, useEffect, useState } from 'react';
+import { forwardRef, useEffect, useState, useRef } from 'react';
 // import { RTCSession } from 'jssip';
 import { changeVolume, selectDevice } from '@/utils/utils';
 import styles from './AudioControls.module.scss';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import cn from 'classnames';
+import { MicrophoneAudio } from '../MicrophoneAudio';
+
 /**
  * Этот компонент отображает ползунок громкости и выпадающее меню для выбора устройства.
  * Компонент использует привязку useState для сохранения текущего состояния и id выбранного устройства.
@@ -46,11 +48,13 @@ export const AudioControls = ({
   labelBlock,
   onChange,
 }: AudioControlPropsTypes) => {
-  console.log('🚀 ➡️ file: AudioControls.tsx:48 ➡️ label', labelBlock);
+  const audioRef = useRef();
+  const [isChecking, setIsChecking] = useState(false);
   // Храним громкость девайса
   const [vol, setVol] = useState(volume);
-  // Храним выбранный девайс
+  // Храним опции для селекта
   const [selectOptions, setSelectOptions] = useState(options);
+  // Храним выбранный девайс
   const [selectedOption, setSelectionOption] = useState(selectedDevice || options[0]);
 
   // Изменение громкости
@@ -78,7 +82,7 @@ export const AudioControls = ({
   return (
     <div className={styles['audio-controls']}>
       <div className={styles.actions}>
-        <div className={styles.block}>
+        <div className={cn(styles.block, styles['select-block'])}>
           <h2>{labelBlock}</h2>
 
           <CreatableSelect
@@ -93,10 +97,18 @@ export const AudioControls = ({
             className={styles.select}
           />
         </div>
+        <div className={cn(styles.block, styles.result)}>
+          {isChecking ? (
+            <MicrophoneAudio audioRef={audioRef} />
+          ) : (
+            <button onClick={() => setIsChecking((prev: any) => !prev)}>Проверить</button>
+          )}
+        </div>
         <div className={cn(styles.block, styles['range-block'])}>
+          {/* <MicrophoneAudio audioRef={audioRef} /> */}
+
           <input
             type="range"
-            orient="vertical"
             name={kind}
             className={styles['volume-slider']}
             min="0"
