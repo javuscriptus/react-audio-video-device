@@ -1,2 +1,2 @@
 export { AudioControls } from './AudioControls';
-export { MicrophoneAudio } from './MicrophoneAudio';
+export { VisualizerAudio } from './VisualizerAudio';

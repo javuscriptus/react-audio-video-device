@@ -1,15 +1,15 @@
 import React, { RefObject, useEffect, useRef } from 'react';
 import JsSIP from 'jssip';
 
-import styles from './MicrophoneAudio.module.scss';
+import styles from './VisualizerAudio.module.scss';
 
-export interface MicrophoneAudioProps {
+export interface VisualizerAudioProps {
   // audioRef: RefObject<HTMLAudioElement>;
   audioRef: any;
 }
 
 // Визуализатор звука
-export function MicrophoneAudio({ audioRef }: MicrophoneAudioProps) {
+export function VisualizerAudio({ audioRef }: VisualizerAudioProps) {
   const canvasElement = useRef<any>();
 
   const currentCanvasElement = canvasElement && canvasElement.current;
@@ -33,7 +33,7 @@ export function MicrophoneAudio({ audioRef }: MicrophoneAudioProps) {
     // Если контекст есть, тогда присваиваем новой переменной его и типизируем.
     const canvasCtx: CanvasRenderingContext2D = canvasCtxTemp;
 
-    // Включаем дебаг JSSIP
+    // Включаем дэбаг JSSIP
     JsSIP.debug.enable('JsSIP:*');
 
     const socket = new JsSIP.WebSocketInterface('ws://localhost:8088/ws');

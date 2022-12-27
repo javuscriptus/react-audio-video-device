@@ -5,7 +5,7 @@ import styles from './AudioControls.module.scss';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import cn from 'classnames';
-import { MicrophoneAudio } from '../MicrophoneAudio';
+import { VisualizerAudio } from '..';
 
 /**
  * Этот компонент отображает ползунок громкости и выпадающее меню для выбора устройства.
@@ -99,7 +99,7 @@ export const AudioControls = ({
         </div>
         <div className={cn(styles.block, styles.result)}>
           {isChecking ? (
-            <MicrophoneAudio audioRef={audioRef} />
+            <VisualizerAudio audioRef={audioRef} />
           ) : (
             <button onClick={() => setIsChecking((prev: any) => !prev)}>Проверить</button>
           )}
